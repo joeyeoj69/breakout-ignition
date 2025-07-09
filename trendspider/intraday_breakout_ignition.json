@@ -1,0 +1,48 @@
+{
+  "timeframe": "30",
+  "source": "Watch\u2011list:B\u2011Ignition Candidates",
+  "conditions": [
+    {
+      "indicator": "GoNoGo Trend Pro",
+      "operator": "=",
+      "value": 2
+    },
+    {
+      "indicator": "GoNoGo Squeeze",
+      "operator": "releasedWithinBars",
+      "value": 3
+    },
+    {
+      "indicator": "Simpler Trading Squeeze Pro Histogram",
+      "operator": ">=",
+      "value": 2
+    },
+    {
+      "indicator": "Trend Strength (20)",
+      "operator": ">=",
+      "value": 25
+    },
+    {
+      "formula": "RSI(14) > 60 AND RSI(14) > RSI(14)[1] AND RSI(14)[1] > RSI(14)[2]"
+    },
+    {
+      "indicator": "Bollinger Band Width (20,2)",
+      "operator": "<",
+      "percentile": 40,
+      "lookback": 60
+    },
+    {
+      "formula": "Close > HedgeWall AND Close < CallWall"
+    }
+  ],
+  "alert": {
+    "type": "webhook",
+    "payload": {
+      "symbol": "{{ticker}}",
+      "price": "{{close}}",
+      "time": "{{timestamp}}",
+      "alert": "Breakout_Ignition",
+      "chart": "{{chartUrl}}"
+    }
+  }
+}

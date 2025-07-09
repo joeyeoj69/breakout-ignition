@@ -1,0 +1,52 @@
+
+# Breakout Ignition – Operator task
+name: breakout‑ignition‑entry
+description: >
+  Receives TrendSpider “Breakout_Ignition” webhooks and sends bracket
+  market orders to IBKR with auto‑logging and Slack notifications.
+
+triggers:
+  - type: webhook
+    event: Breakout_Ignition
+    secret: ${WEBHOOK_SECRET}
+
+steps:
+  - id: risk
+    run: |
+      atr = ibkr.atr(symbol=event.symbol, length=14)
+      qty = round((float(env("ACCOUNT_EQUITY")) * 0.012) / (atr * 1.5))
+      set_output("qty", qty)
+
+  - id: order
+    run: |
+      id = ibkr.market_order(event.symbol, steps.risk.qty, tif="DAY", transmit=False)
+      ibkr.attach_bracket(
+        parentId=id,
+        take_profit=event.price * 1.10,
+        stop_loss=event.price * 0.96
+      )
+      set_output("parentId", id)
+
+  - id: transmit
+    run: |
+      ibkr.transmit(parentId=steps.order.parentId)
+
+  - id: log
+    run: |
+      gsheets.append_row(
+        sheet="Trade Log",
+        values=[event.time, event.symbol, event.price, steps.risk.qty]
+      )
+
+  - id: slack
+    run: |
+      slack.post_message(
+        channel="#trade‑bot",
+        text=f"🚀 Entered {event.symbol} x{steps.risk.qty} @ {event.price}"
+      )
+
+settings:
+  retries: 2
+  circuit_breaker:
+    threshold: 3
+    window: "24h"

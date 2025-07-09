@@ -1,0 +1,21 @@
+{
+  "timeframe": "D",
+  "conditions": [
+    {
+      "indicator": "GoNoGo Trend Pro",
+      "operator": "=",
+      "value": 2
+    },
+    {
+      "indicator": "Trend Strength (20)",
+      "operator": ">=",
+      "value": 25
+    },
+    {
+      "indicator": "Close",
+      "operator": ">",
+      "valueIndicator": "EMA (21)"
+    }
+  ],
+  "universe": "Liquid Equities & ETFs (AvgVol \u2265 500k)"
+}
